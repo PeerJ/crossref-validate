@@ -2,7 +2,7 @@
 
 # fetch CrossRef schema files
 mkdir -p crossref
-wget --recursive --level=1 --directory-prefix=crossref --no-directories --no-clobber --accept xsd http://doi.crossref.org/schemas/
+wget --recursive --level=1 --directory-prefix=crossref --no-directories --timestamping --accept xsd http://doi.crossref.org/schemas/
 
 # fetch and compile CrossRef Schematron rules
 # mkdir /tmp/crossref
