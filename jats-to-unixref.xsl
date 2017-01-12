@@ -5,14 +5,16 @@
                 xmlns:xlink="http://www.w3.org/1999/xlink"
                 xmlns:fr="http://www.crossref.org/fundref.xsd"
                 xmlns:jats="http://www.ncbi.nlm.nih.gov/JATS1"
+                xmlns:mml="http://www.w3.org/1998/Math/MathML"
                 xmlns:ai="http://www.crossref.org/AccessIndicators.xsd"
+                xmlns:str="http://exslt.org/strings"
                 xmlns="http://www.crossref.org/schema/4.3.6"
                 xsi:schemaLocation="http://www.crossref.org/schema/4.3.6 http://www.crossref.org/schema/deposit/crossref4.3.6.xsd
                 http://www.crossref.org/fundref.xsd http://www.crossref.org/schema/deposit/fundref.xsd
                 http://www.crossref.org/AccessIndicators.xsd http://www.crossref.org/schemas/AccessIndicators.xsd"
                 exclude-result-prefixes="xlink">
 
-	<xsl:output method="xml" indent="yes" encoding="UTF-8" standalone="yes"/>
+	<xsl:output method="xml" indent="yes" encoding="UTF-8" standalone="yes" />
 
 	<xsl:strip-space elements="aff"/>
 
@@ -22,6 +24,9 @@
     <xsl:variable name="url" select="$article-meta/self-uri/@xlink:href"/>
 
     <xsl:param name="timestamp"/>
+
+	<!-- a comma-separated list of archive locations -->
+	<xsl:param name="archiveLocations"/>
 
 	<xsl:param name="depositorName"/>
 	<xsl:param name="depositorEmail"/>
@@ -70,7 +75,7 @@
         <xsl:variable name="pub-date" select="$meta/pub-date[@date-type='pub'][@pub-type='epub']|$meta/pub-date[@date-type='preprint'][@pub-type='epreprint']"/>
 		<journal>
 			<!-- journal -->
-			<journal_metadata language="en">
+			<journal_metadata language="en" reference_distribution_opts="any" metadata_distribution_opts="any">
 				<full_title>
 					<xsl:value-of select="front/journal-meta/journal-title-group/journal-title"/>
 				</full_title>
@@ -78,6 +83,8 @@
 				<issn media_type="electronic">
 					<xsl:value-of select="front/journal-meta/issn"/>
 				</issn>
+
+				<xsl:call-template name="archive-locations"/>
 			</journal_metadata>
 
 			<!-- journal issue -->
@@ -170,7 +177,8 @@
 			<resource>
 				<xsl:value-of select="self-uri/@xlink:href"/>
 			</resource>
-            <xsl:call-template name="tdm"/>
+            		<xsl:call-template name="tdm"/>
+            		<xsl:call-template name="crawler"/>
 		</doi_data>
 	</xsl:template>
 
@@ -230,6 +238,10 @@
         <xsl:value-of select="alternatives/tex-math"/>
     </xsl:template>
 
+	<xsl:template match="inline-formula" mode="abstract">
+		<xsl:value-of select="alternatives/tex-math"/>
+	</xsl:template>
+
     <!--
     <xsl:template match="tex-math" mode="title"/>
 
@@ -257,7 +269,7 @@
 					<xsl:call-template name="contributor-sequence"/>
 					<xsl:apply-templates select="name" mode="contrib"/>
 					<xsl:apply-templates select="xref[@ref-type='aff']" mode="contrib"/>
-					<!--<xsl:apply-templates select="contrib-id" mode="contrib"/>-->
+					<xsl:apply-templates select="contrib-id" mode="contrib"/>
 				</person_name>
 			</xsl:when>
 			<xsl:when test="collab">
@@ -311,13 +323,11 @@
 		</xsl:if>
 	</xsl:template>
 
-	<!--
 	<xsl:template match="contrib-id[@contrib-id-type='orcid']" mode="contrib">
-		<ORCID authenticated="false">
-			<xsl:value-of select="."></xsl:value-of>
+		<ORCID authenticated="true">
+			<xsl:value-of select="concat('http://orcid.org/', .)"/>
 		</ORCID>
 	</xsl:template>
-	-->
 
 	<!-- affiliation -->
 
@@ -374,7 +384,7 @@
 			<xsl:apply-templates select="fpage | elocation-id" mode="citation"/>
 			<xsl:apply-templates select="year" mode="citation"/>
             <xsl:apply-templates select="pub-id[@pub-id-type='doi'][1]" mode="citation"/>
-            <xsl:apply-templates select="article-title" mode="citation"/>
+            <xsl:apply-templates select="article-title | data-title" mode="citation"/>
 
             <!-- unstructured citations -->
             <xsl:if test="not(article-title) and not(source)">
@@ -433,6 +443,12 @@
     </xsl:template>
 
 	<xsl:template match="article-title" mode="citation">
+		<article_title>
+			<xsl:apply-templates/>
+		</article_title>
+	</xsl:template>
+
+	<xsl:template match="data-title" mode="citation">
 		<article_title>
 			<xsl:apply-templates/>
 		</article_title>
@@ -553,23 +569,23 @@
         </titles>
     </xsl:template>
 
-    <!-- http://help.crossref.org/include-abstracts-in-deposits -->
-    <xsl:template match="node()" mode="abstract">
-        <xsl:element name="jats:{local-name()}" namespace="http://www.ncbi.nlm.nih.gov/JATS1">
-            <!--<xsl:copy-of select="namespace::*"/>-->
-            <xsl:apply-templates select="node()|@*" mode="abstract"/>
-        </xsl:element>
-    </xsl:template>
+	<!-- http://help.crossref.org/include-abstracts-in-deposits -->
+	<xsl:template match="node()" mode="abstract">
+		<xsl:element name="jats:{local-name()}" namespace="http://www.ncbi.nlm.nih.gov/JATS1">
+			<!--<xsl:copy-of select="namespace::*"/>-->
+			<xsl:apply-templates select="node()|@*" mode="abstract"/>
+		</xsl:element>
+	</xsl:template>
 
-    <xsl:template match="text()" mode="abstract">
-        <xsl:value-of select="."/>
-    </xsl:template>
+	<xsl:template match="text()" mode="abstract">
+		<xsl:value-of select="."/>
+	</xsl:template>
 
-    <xsl:template match="@*" mode="abstract">
-        <xsl:attribute name="jats:{local-name()}" namespace="http://www.ncbi.nlm.nih.gov/JATS1">
-            <xsl:value-of select="."/>
-        </xsl:attribute>
-    </xsl:template>
+	<xsl:template match="@*" mode="abstract">
+		<xsl:attribute name="{name()}">
+			<xsl:value-of select="."/>
+		</xsl:attribute>
+	</xsl:template>
 
 	<xsl:template match="xref" mode="abstract">
 		<xsl:apply-templates select="node()"/>
@@ -650,4 +666,27 @@
             </item>
         </collection>
     </xsl:template>
+	
+	<!-- crawler full-text URLs for Similarity Check -->
+	<!-- https://support.crossref.org/hc/en-us/articles/215774943-Depositing-as-crawled-URLs-for-Similarity-Check -->
+	<xsl:template name="crawler">
+		<collection property="crawler-based">
+			<item crawler="iParadigms">
+				<resource>
+					<xsl:value-of select="concat($url, '.pdf')"/>
+				</resource>
+			</item>
+		</collection>
+	</xsl:template>
+
+	<!-- archive locations -->
+	<xsl:template name="archive-locations">
+		<xsl:if test="$archiveLocations">
+			<archive_locations>
+				<xsl:for-each select="str:tokenize($archiveLocations, ',')">
+					<archive name="{.}"/>
+				</xsl:for-each>
+			</archive_locations>
+		</xsl:if>
+	</xsl:template>
 </xsl:stylesheet>
