@@ -6,5 +6,4 @@ Convert a JATS XML document to CrossRef's Deposit Schema, and validate against t
 
 ## Updating
 
-1. Run `./build.sh` to fetch the schema files from CrossRef's web server.
-1. Copy `jats-to-unixref.xsl` from https://github.com/PeerJ/jats-conversion/blob/master/src/data/xsl/jats-to-unixref.xsl
+1. Run `./build.sh` to fetch the schema files from CrossRef's web server and update the XSL file.
