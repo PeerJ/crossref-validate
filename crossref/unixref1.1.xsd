@@ -33,6 +33,7 @@ Unified CrossRef XML schema. It is based a copy of the CrossRef.xsd metadata sch
 	targetNamespace="http://www.crossref.org/xschema/1.1"
 	xmlns:fr="http://www.crossref.org/fundref.xsd"
 	xmlns:ai="http://www.crossref.org/AccessIndicators.xsd"
+        xmlns:ct="http://www.crossref.org/clinicaltrials.xsd"
 	xmlns:rel="http://www.crossref.org/relations.xsd"
 	xmlns:mml="http://www.w3.org/1998/Math/MathML"
     xmlns:jats="http://www.ncbi.nlm.nih.gov/JATS1">
@@ -42,7 +43,7 @@ Unified CrossRef XML schema. It is based a copy of the CrossRef.xsd metadata sch
 	<xsd:import namespace="http://www.crossref.org/relations.xsd" schemaLocation="relations.xsd"/>
 	<xsd:import namespace="http://www.w3.org/1998/Math/MathML" schemaLocation="http://www.w3.org/Math/XMLSchema/mathml3/mathml3.xsd"/>
 	<xsd:import namespace="http://www.ncbi.nlm.nih.gov/JATS1" schemaLocation="JATS-journalpublishing1.xsd"/>
-
+	<xsd:import namespace="http://www.crossref.org/clinicaltrials.xsd" schemaLocation="clinicaltrials.xsd"/>
 	<!-- =============================================================
 
                           1. Shared attributes
@@ -1543,6 +1544,8 @@ Unified CrossRef XML schema. It is based a copy of the CrossRef.xsd metadata sch
 				<!-- unixref - changed to maxOccurs="1", one record per DOI -->
 				<xsd:element ref="database"/>
 				<!-- unixref - changed to maxOccurs="1", one record per DOI -->
+				<xsd:element ref="posted_content"/>
+				<!-- unixref - changed to maxOccurs="1", one record per DOI -->
 				<xsd:element ref="error"/>
 				<!-- error messages are reported in this element  -->
 			</xsd:choice>
@@ -1653,6 +1656,7 @@ Unified CrossRef XML schema. It is based a copy of the CrossRef.xsd metadata sch
 		<xsd:complexType>
 			<xsd:sequence>
 				<xsd:element ref="contributors" minOccurs="0"/>
+				<xsd:element ref="titles" minOccurs="0"/>
 				<xsd:element ref="publication_date" minOccurs="0" maxOccurs="10"/>
 				<!-- unixref, made publication_date optional -->
 				<xsd:element ref="journal_volume" minOccurs="0"/>
@@ -1692,6 +1696,7 @@ Unified CrossRef XML schema. It is based a copy of the CrossRef.xsd metadata sch
 				<xsd:element ref="crossmark" minOccurs="0"/>
 				<xsd:element ref="fr:program" minOccurs="0"/>
 				<xsd:element ref="ai:program" minOccurs="0"/>
+                                <xsd:element ref="ct:program" minOccurs="0"/>
 				<xsd:element ref="rel:program" minOccurs="0"/>		
 				<xsd:element ref="archive_locations" minOccurs="0"/>
 				<xsd:element ref="doi_data"/>
@@ -1889,6 +1894,7 @@ Unified CrossRef XML schema. It is based a copy of the CrossRef.xsd metadata sch
 				<xsd:element ref="crossmark" minOccurs="0"/>
 				<xsd:element ref="fr:program" minOccurs="0"/>
 				<xsd:element ref="ai:program" minOccurs="0"/>
+                                <xsd:element ref="ct:program" minOccurs="0"/>
 				<xsd:element ref="rel:program" minOccurs="0"/>	
 				<xsd:element ref="archive_locations" minOccurs="0"/>
 				<xsd:element ref="doi_data"/>
@@ -2053,6 +2059,7 @@ Unified CrossRef XML schema. It is based a copy of the CrossRef.xsd metadata sch
 				<xsd:element ref="crossmark" minOccurs="0"/>
 				<xsd:element ref="fr:program" minOccurs="0"/>
 				<xsd:element ref="ai:program" minOccurs="0"/>
+                                <xsd:element ref="ct:program" minOccurs="0"/>
 				<xsd:element ref="rel:program" minOccurs="0"/>	
 				<xsd:element ref="archive_locations" minOccurs="0"/>
 				<xsd:element ref="doi_data"/>
@@ -2583,6 +2590,57 @@ Unified CrossRef XML schema. It is based a copy of the CrossRef.xsd metadata sch
 			</xsd:attribute>
 		</xsd:complexType>
 	</xsd:element>
+	
+	<xsd:element name="posted_content">
+		
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="group_title" minOccurs="0" maxOccurs="1"/>
+				<xsd:element ref="contributors" minOccurs="0"/>
+				<xsd:element ref="titles"/>
+				<xsd:element ref="posted_date" minOccurs="1" maxOccurs="1"/>
+				<xsd:element ref="acceptance_date" minOccurs="0" maxOccurs="1"/>
+				<xsd:element ref="institution" minOccurs="0" maxOccurs="5"/>
+				<xsd:element ref="item_number" minOccurs="0" maxOccurs="3"/>
+				<xsd:element ref="jats:abstract" minOccurs="0"/>
+				<xsd:element maxOccurs="1" ref="fr:program" minOccurs="0"/>
+				<xsd:element ref="ai:program" minOccurs="0"/>
+				<xsd:element ref="rel:program" minOccurs="0"/>
+				<xsd:element ref="doi_data" minOccurs="1"/>
+				<xsd:element ref="citation_list" minOccurs="0"/>
+			</xsd:sequence>
+			<xsd:attribute name="type" default="preprint">
+				<xsd:simpleType>
+					<xsd:restriction base="xsd:NMTOKEN">
+						<xsd:enumeration value="preprint"/>
+						<xsd:enumeration value="working_paper"/>
+						<xsd:enumeration value="letter"/>
+						<xsd:enumeration value="dissertation"/>
+						<xsd:enumeration value="report"/>
+                                                <xsd:enumeration value="other"/>
+					</xsd:restriction>
+				</xsd:simpleType>
+			</xsd:attribute>                        
+			<xsd:attributeGroup ref="language.atts"/>
+			<xsd:attributeGroup ref="metadata_distribution_opts.att"/>
+		</xsd:complexType>
+	</xsd:element>	
+	
+	
+	<xsd:element name="group_title">
+		<xsd:annotation>
+			<xsd:documentation>Prepublication content items may be organzed into groupings within a given publisher.
+				This element provides for naming the group. It is expected that publishers will have a small number of groups
+				each of which reflect a topic or subject area.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:simpleType>
+			<xsd:restriction base="xsd:string">
+				<xsd:maxLength value="1024"/>
+				<xsd:minLength value="1"/>
+			</xsd:restriction>
+		</xsd:simpleType>
+	</xsd:element>
+	
 	<xsd:element name="database_date">
 		<xsd:complexType>
 			<xsd:sequence>
@@ -2606,7 +2664,30 @@ Unified CrossRef XML schema. It is based a copy of the CrossRef.xsd metadata sch
 			</xsd:complexContent>
 		</xsd:complexType>
 	</xsd:element>
-	<!-- =============================================================
+
+	<xsd:element name="posted_date">
+		<xsd:annotation>
+			<xsd:documentation>The date a pre-print was posted to a repository.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:complexContent>
+				<xsd:extension base="date_t"/>
+			</xsd:complexContent>
+		</xsd:complexType>
+	</xsd:element>
+	
+	<xsd:element name="acceptance_date">
+		<xsd:annotation>
+			<xsd:documentation>The date a manuscript was accepted for publication.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:complexContent>
+				<xsd:extension base="date_t"/>
+			</xsd:complexContent>
+		</xsd:complexType>
+	</xsd:element>
+
+<!-- =============================================================
 
  10. Elements common to reports, dissertations and standards
 
@@ -2688,7 +2769,7 @@ Unified CrossRef XML schema. It is based a copy of the CrossRef.xsd metadata sch
 				<xsd:element ref="crossmark_version" minOccurs="0"/>
 				<xsd:element ref="crossmark_policy"/>
 				<xsd:element ref="crossmark_domains"/>
-				<xsd:element ref="crossmark_domain_exclusive"/>
+				<xsd:element ref="crossmark_domain_exclusive" minOccurs="0"/>
 				<xsd:sequence minOccurs="0">
 					<xsd:element ref="updates" minOccurs="0"/>
 					<xsd:element ref="custom_metadata" minOccurs="0"/>
@@ -2740,6 +2821,7 @@ Unified CrossRef XML schema. It is based a copy of the CrossRef.xsd metadata sch
 				<xsd:element maxOccurs="unbounded" ref="assertion" minOccurs="0"/>
 				<xsd:element maxOccurs="unbounded" ref="fr:program" minOccurs="0"/>
 				<xsd:element maxOccurs="unbounded" ref="ai:program" minOccurs="0"/>
+                                <xsd:element maxOccurs="unbounded" ref="ct:program"  minOccurs="0"/>
 			</xsd:sequence>
 		</xsd:complexType>
 	</xsd:element>

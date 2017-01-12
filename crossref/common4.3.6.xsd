@@ -6,17 +6,14 @@
 
 	<!-- =============================================================
 
-                          Introduction
+Introduction
 
-     CrossRef Schema Version 4.3.0
-     for Journal, book and conferernce submissions
+CrossRef Schema Version 4.3
+Developed for CrossRef (www.crossref.org) by
 
-     Developed for CrossRef (www.crossref.org) by
-
-     Inera Incorporated
-     Newton, MA 02460
-     http://www.inera.com
-     email: info@inera.com
+Inera Incorporated
+http://www.inera.com
+email: info@inera.com
 
 
      ============================================================= -->
@@ -43,6 +40,8 @@
 
     Changes record version, author initials, date, and comments
   
+  4.3.6 (PDF) add WebCite as value for archive, lengthen surname and given_name fields to 55
+  4.3.0-6 (PDF) disallow empty value for citation "key" attribute
   4.3.5, 4.3.6 (PDF) 5/14/2015 added text/rtf as mime type
   4.3.6 (PDF) 5/13/2015 relax surname validation to accommodate some author names with '?' and digits.
   4.3.5,6 (PDF) 3/31/2015 added ai:program to components
@@ -359,7 +358,7 @@
 					<xsd:enumeration value="text/html"/>
 					<xsd:enumeration value="text/sgml"/>
 					<xsd:enumeration value="text/css"/>
-                                        <xsd:enumeration value="text/rtf"/>
+                    <xsd:enumeration value="text/rtf"/>
 					<xsd:enumeration value="text/xml"/>
 					<xsd:enumeration value="text/xml-external-parsed-entity"/>
 					<xsd:enumeration value="multipart/mixed"/>
@@ -407,13 +406,11 @@
 					<xsd:enumeration value="application/vnd.oasis.opendocument.spreadsheet"/>
 					<xsd:enumeration value="application/vnd.ms-excel"/>
 					<xsd:enumeration value="application/vnd.ms-powerpoint"/>
-					<xsd:enumeration
-						value="application/vnd.openxmlformats-officedocument.presentationml.presentation"/>
-					<xsd:enumeration
-						value="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"/>
-					<xsd:enumeration
-						value="application/vnd.openxmlformats-officedocument.wordprocessingml.document"/>
+					<xsd:enumeration value="application/vnd.openxmlformats-officedocument.presentationml.presentation"/>
+					<xsd:enumeration value="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"/>
+					<xsd:enumeration value="application/vnd.openxmlformats-officedocument.wordprocessingml.document"/>
 					<xsd:enumeration value="application/epub+zip"/>
+					<xsd:enumeration value="application/regex.clinical-trial-number"/>					
 					<xsd:enumeration value="image/fits"/>
 					<xsd:enumeration value="image/jpeg"/>
 					<xsd:enumeration value="image/gif"/>
@@ -1266,7 +1263,7 @@ MathML may also be included using the 'mml' namespace prefix.</xsd:documentation
 		</xsd:annotation>
 		<xsd:simpleType>
 			<xsd:restriction base="xsd:string">
-				<xsd:maxLength value="35"/>
+				<xsd:maxLength value="60"/>
 				<xsd:minLength value="1"/>
 				<xsd:pattern value="[^\d\?]*"/>
 				<xsd:whiteSpace value="collapse"/>
@@ -1286,7 +1283,7 @@ MathML may also be included using the 'mml' namespace prefix.</xsd:documentation
 		</xsd:annotation>
 		<xsd:simpleType>
 			<xsd:restriction base="xsd:string">
-				<xsd:maxLength value="45"/>
+				<xsd:maxLength value="60"/>
 				<xsd:minLength value="1"/>
 				<xsd:pattern value="[^\d\?]*[^\?\s]+[^\d]*"/>
 				<xsd:whiteSpace value="collapse"/>
@@ -1818,7 +1815,7 @@ MathML may also be included using the 'mml' namespace prefix.</xsd:documentation
 		<xsd:annotation>
 			<xsd:documentation>Used to indicate the designated archiving organization(s) for an
 				item. Values for the name attribute are CLOCKSS, LOCKSS Portico, KB, DWT (Deep Web
-				Technologies), Internet Archive</xsd:documentation>
+				Technologies), Internet Archive, WebCite</xsd:documentation>
 		</xsd:annotation>
 		<xsd:complexType>
 			<xsd:attribute name="name" use="required">
@@ -1830,6 +1827,7 @@ MathML may also be included using the 'mml' namespace prefix.</xsd:documentation
 						<xsd:enumeration value="KB"/>
 						<xsd:enumeration value="Internet Archive"/>
 						<xsd:enumeration value="DWT"/>
+                                                <xsd:enumeration value="WebCite"/>
 					</xsd:restriction>
 				</xsd:simpleType>
 			</xsd:attribute>
@@ -2045,7 +2043,15 @@ MathML may also be included using the 'mml' namespace prefix.</xsd:documentation
 				key value to track the specific reference query and will return this value along
 				with the DOI.</xsd:documentation>
 		</xsd:annotation>
-		<xsd:attribute name="key" type="xsd:string" use="required"/>
+		<xsd:attribute name="key" use="required">
+			<xsd:simpleType>
+				<xsd:restriction base="xsd:string">
+					<xsd:minLength value="1"/>
+                                        <xsd:maxLength value="128"/>
+					<xsd:whiteSpace value="collapse" />
+				</xsd:restriction>
+			</xsd:simpleType>
+		</xsd:attribute>
 	</xsd:attributeGroup>
 	<!-- =============================================================
 
@@ -2299,9 +2305,9 @@ MathML may also be included using the 'mml' namespace prefix.</xsd:documentation
 				<xsd:element ref="crossmark_version" minOccurs="0"/>
 				<xsd:element ref="crossmark_policy"/>
 				<xsd:element ref="crossmark_domains"/>
-				<xsd:element ref="crossmark_domain_exclusive">
+				<xsd:element ref="crossmark_domain_exclusive" minOccurs="0">
 					<xsd:annotation>
-						<xsd:documentation>Required element. Some publishers encourage broad third
+						<xsd:documentation> Some publishers encourage broad third
 							party hosting of the publisher's content. Other publishers do not. And
 							still others vary their policy depending on whether a particular article
 							has been published under an OA policy or not. This boolean flag allows
@@ -2469,7 +2475,7 @@ MathML may also be included using the 'mml' namespace prefix.</xsd:documentation
 					<xsd:element maxOccurs="1" ref="fr:program"/>
 					<xsd:element maxOccurs="1" ref="ai:program" minOccurs="0"/>
 				</xsd:sequence>
-				<xsd:element ref="ai:program" minOccurs="0" maxOccurs="1"/>
+				<xsd:element ref="ai:program" minOccurs="1" maxOccurs="1"/>
 			</xsd:choice>
 		</xsd:complexType>
 	</xsd:element>

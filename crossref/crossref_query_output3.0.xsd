@@ -202,8 +202,10 @@
 								<xsd:enumeration value="citedby-count"/>
 								<xsd:enumeration value="publisher-name"/>
 								<xsd:enumeration value="prefix-name"/>
-                                                                <xsd:enumeration value="member-id"/>
-							</xsd:restriction>
+                                <xsd:enumeration value="member-id"/>
+                                <xsd:enumeration value="created"/>
+								<xsd:enumeration value="relation"/>
+                             </xsd:restriction>
 						</xsd:simpleType>
 					</xsd:attribute>
 					<xsd:attribute name="type" use="required">
@@ -213,10 +215,18 @@
 								<xsd:enumeration value="string"/>
 								<xsd:enumeration value="number"/>
 								<xsd:enumeration value="date"/>
+								<xsd:enumeration value="doi"/>
 							</xsd:restriction>
 						</xsd:simpleType>
 					</xsd:attribute>
-				</xsd:extension>
+					<xsd:attribute name="claim" use="optional">
+						<xsd:simpleType>
+							<xsd:restriction base="xsd:string">
+								<xsd:maxLength value="128"/>
+								<xsd:minLength value="0"/>
+							</xsd:restriction>
+						</xsd:simpleType>
+					</xsd:attribute>				</xsd:extension>
 			</xsd:simpleContent>
 		</xsd:complexType>
 	</xsd:element>
@@ -243,6 +253,7 @@
 				<xsd:element ref="report_cite" minOccurs="0" maxOccurs="unbounded"/>
 				<xsd:element ref="standard_cite" minOccurs="0" maxOccurs="unbounded"/>
 				<xsd:element ref="database_cite" minOccurs="0" maxOccurs="unbounded"/>
+				<xsd:element ref="postedcontent_cite" minOccurs="0" maxOccurs="unbounded"/>				
 				<xsd:element ref="msg" minOccurs="0"/>
 			</xsd:sequence>
 			<xsd:attribute name="doi" type="xsd:string" use="required"/>
@@ -403,6 +414,24 @@
 			<!-- Number of times this DOI is cited within CrossRef by another DOI -->
 		</xsd:complexType>
 	</xsd:element>
+	
+	<xsd:element name="postedcontent_cite">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="title" minOccurs="0"/>
+				<xsd:element ref="contributors" minOccurs="0"/>
+				<xsd:element ref="year" minOccurs="0"/>
+				<xsd:element ref="doi"/>
+			</xsd:sequence>
+			<xsd:attribute name="fl_count">
+				<xsd:simpleType>
+					<xsd:restriction base="xsd:nonNegativeInteger"/>
+				</xsd:simpleType>
+			</xsd:attribute>
+			<!-- Number of times this DOI is cited within CrossRef by another DOI -->
+		</xsd:complexType>
+	</xsd:element>
+	
 	<xsd:element name="article_title">
 		<xsd:complexType>
 			<xsd:simpleContent>
@@ -1065,6 +1094,8 @@
 								<xsd:enumeration value="standard_title"/>
 								<xsd:enumeration value="standard_series"/>
 								<xsd:enumeration value="standard_content"/>
+								<xsd:enumeration value="prepublication"/>
+								
 								<!--
                                 <xsd:enumeration value="database_title"/>
                                 <xsd:enumeration value="content_item"/>
