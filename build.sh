@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# re-fetch XSL file
+rm 'jats-to-unixref.xsl'
+wget 'https://raw.githubusercontent.com/PeerJ/jats-conversion/master/src/data/xsl/jats-to-unixref.xsl'
+
 # fetch CrossRef schema files
 mkdir -p crossref
 wget --recursive --level=1 --directory-prefix=crossref --no-directories --timestamping --accept xsd http://doi.crossref.org/schemas/
